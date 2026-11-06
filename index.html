@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Lucro Shopee (2026)</title>
+  <style>
+    :root {
+      --shopee-orange: #EE4D2D;
+      --shopee-orange-hover: #d73d1d;
+      --shopee-dark: #222222;
+      --bg-color: #f4f5f7;
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --text-muted: #666666;
+      --border-color: #e0e0e0;
+      --success-green: #2e7d32;
+      --danger-red: #c62828;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 20px 12px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--shopee-orange), #ff7337);
+      color: #fff;
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .app-body {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .app-body {
+        grid-template-columns: 1fr 1fr;
+      }
+      .full-width {
+        grid-column: span 2;
+      }
+    }
+
+    .card-section {
+      background: #fafafa;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .card-section h2 {
+      font-size: 1.1rem;
+      color: var(--shopee-dark);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 2px solid var(--shopee-orange);
+      padding-bottom: 6px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper span.prefix,
+    .input-wrapper span.suffix {
+      position: absolute;
+      color: #888;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .input-wrapper span.prefix { left: 10px; }
+    .input-wrapper span.suffix { right: 10px; }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="number"].has-prefix { padding-left: 36px; }
+    input[type="number"].has-suffix { padding-right: 36px; }
+
+    input[type="number"]:focus {
+      border-color: var(--shopee-orange);
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: normal;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--shopee-orange);
+      cursor: pointer;
+    }
+
+    /* Resumo Unidade */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 0.9rem;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-row.total-tax {
+      color: var(--danger-red);
+      font-weight: 600;
+    }
+
+    .summary-row.payout {
+      color: #1976d2;
+      font-weight: 600;
+    }
+
+    .profit-card {
+      margin-top: 15px;
+      padding: 14px;
+      border-radius: 8px;
+      text-align: center;
+      background: #e8f5e9;
+      border: 1px solid #c8e6c9;
+      color: var(--success-green);
+    }
+
+    .profit-card.loss {
+      background: #ffebee;
+      border-color: #ffcdd2;
+      color: var(--danger-red);
+    }
+
+    .profit-card .title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .profit-card .value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin: 4px 0;
+    }
+
+    .profit-card .margin {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* Seção de Volume */
+    .batch-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .quick-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-quick {
+      background: #eee;
+      border: 1px solid #ccc;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-quick:hover {
+      background: var(--shopee-orange);
+      color: #fff;
+      border-color: var(--shopee-orange);
+    }
+
+    .grid-batch {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .batch-item {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .batch-item .lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .batch-item .val {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .batch-item.highlight {
+      background: #e8f5e9;
+      border-color: #a5d6a7;
+    }
+
+    .batch-item.highlight .val {
+      color: var(--success-green);
+    }
+
+    .batch-item.highlight-loss {
+      background: #ffebee;
+      border-color: #ef9a9a;
+    }
+
+    .batch-item.highlight-loss .val {
+      color: var(--danger-red);
+    }
+
+    .badge-info {
+      font-size: 0.75rem;
+      background: #e3f2fd;
+      color: #0d47a1;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-top: 4px;
+      display: inline-block;
+    }
+
+    .fee-badge {
+      font-size: 0.8rem;
+      color: var(--shopee-orange);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Calculadora de Lucro Shopee</h1>
+    <p>Atualizada com as regras vigentes a partir de 01/10/2026</p>
+  </header>
+
+  <div class="app-body">
+    
+    <!-- LADO ESQUERDO: ENTRADAS DE DADOS -->
+    <div class="card-section">
+      <h2>1. Dados da Venda (Unidade)</h2>
+      
+      <div class="form-group">
+        <label for="salePrice">Preço de Venda do Item</label>
+        <div class="input-wrapper">
+          <span class="prefix">R$</span>
+          <input type="number" id="salePrice" class="has-prefix" step="0.01" value="50.00" min="0">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="costProduct">Custo do Produto (Fornecedor)</label>
+        <div class="input-wrapper">
+          <span class="prefix">R$</span>
+          <input type="number" id="costProduct" class="has-prefix" step="0.01" value="20.00" min="0">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="costPackaging">Custo de Embalagem / Envio</label>
+        <div class="input-wrapper">
+          <span class="prefix">R$</span>
+          <input type="number" id="costPackaging" class="has-prefix" step="0.01" value="1.50" min="0">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="taxRate">Imposto / Nota Fiscal (%)</label>
+        <div class="input-wrapper">
+          <input type="number" id="taxRate" class="has-suffix" step="0.1" value="4.0" min="0">
+          <span class="suffix">%</span>
+        </div>
+      </div>
+
+      <h2 style="margin-top: 20px;">2. Programas e Taxas Adicionais</h2>
+      <div class="checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="chkFreeShipping" checked>
+          Programa Frete Grátis (+6.0%)
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="chkHighlight">
+          Campanha de Destaque (+3.5%)
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="chkAdsEasy">
+          Programa Ads Fácil (+1.5%)
+        </label>
+      </div>
+    </div>
+
+    <!-- LADO DIREITO: RESULTADO POR UNIDADE -->
+    <div class="card-section">
+      <h2>3. Resumo por Unidade</h2>
+
+      <div class="summary-row">
+        <span>Comissão de Porcentagem:</span>
+        <span id="txtPercentFee">R$ 0,00 (20.0%)</span>
+      </div>
+
+      <div class="summary-row">
+        <span>
+          Taxa Fixa por Item: 
+          <span id="txtFixedFeeRule" class="badge-info">Padrão</span>
+        </span>
+        <span id="txtFixedFee">R$ 4,50</span>
+      </div>
+
+      <div class="summary-row total-tax">
+        <span>Total de Taxas Shopee:</span>
+        <span id="txtTotalShopeeFee">R$ 0,00</span>
+      </div>
+
+      <div class="summary-row payout">
+        <span>Repasse da Shopee:</span>
+        <span id="txtShopeePayout">R$ 0,00</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Impostos (NF):</span>
+        <span id="txtTaxValue">R$ 0,00</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Custos Totais (Prod + Emb + NF):</span>
+        <span id="txtTotalOtherCosts">R$ 0,00</span>
+      </div>
+
+      <!-- CARD DE LUCRO/PREJUÍZO -->
+      <div id="profitCard" class="profit-card">
+        <div class="title">Lucro Líquido Unitário</div>
+        <div id="txtProfitValue" class="value">R$ 0,00</div>
+        <div id="txtProfitMargin" class="margin">Margem: 0.0%</div>
+      </div>
+    </div>
+
+    <!-- SEÇÃO INFERIOR: SIMULAÇÃO DE VENDAS EM LOTE -->
+    <div class="card-section full-width">
+      <h2>4. Simulação de Volume (Vendas em Lote)</h2>
+      
+      <div class="batch-controls">
+        <div class="form-group" style="margin-bottom:0; flex-grow: 1; max-width: 250px;">
+          <label for="batchQuantity">Quantidade de Vendas:</label>
+          <input type="number" id="batchQuantity" value="50" min="1" step="1">
+        </div>
+
+        <div style="align-self: flex-end;">
+          <label>Atalhos:</label>
+          <div class="quick-btns">
+            <button class="btn-quick" onclick="setBatch(10)">10</button>
+            <button class="btn-quick" onclick="setBatch(50)">50</button>
+            <button class="btn-quick" onclick="setBatch(100)">100</button>
+            <button class="btn-quick" onclick="setBatch(500)">500</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-batch">
+        <div class="batch-item">
+          <div class="lbl">FATURAMENTO BRUTO</div>
+          <div id="batchGross" class="val">R$ 0,00</div>
+        </div>
+        <div class="batch-item">
+          <div class="lbl">TOTAL TAXAS SHOPEE</div>
+          <div id="batchShopeeFees" class="val" style="color: var(--danger-red);">R$ 0,00</div>
+        </div>
+        <div class="batch-item">
+          <div class="lbl">TOTAL REPASSE SHOPEE</div>
+          <div id="batchPayout" class="val" style="color: #1976d2;">R$ 0,00</div>
+        </div>
+        <div class="batch-item">
+          <div class="lbl">CUSTOS PROD. + EMB. + NF</div>
+          <div id="batchCosts" class="val">R$ 0,00</div>
+        </div>
+        <div id="batchProfitBox" class="batch-item highlight">
+          <div class="lbl">LUCRO LÍQUIDO ACUMULADO</div>
+          <div id="batchProfit" class="val">R$ 0,00</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Seleção de elementos
+  const salePriceEl = document.getElementById('salePrice');
+  const costProductEl = document.getElementById('costProduct');
+  const costPackagingEl = document.getElementById('costPackaging');
+  const taxRateEl = document.getElementById('taxRate');
+
+  const chkFreeShipping = document.getElementById('chkFreeShipping');
+  const chkHighlight = document.getElementById('chkHighlight');
+  const chkAdsEasy = document.getElementById('chkAdsEasy');
+
+  const txtPercentFee = document.getElementById('txtPercentFee');
+  const txtFixedFee = document.getElementById('txtFixedFee');
+  const txtFixedFeeRule = document.getElementById('txtFixedFeeRule');
+  const txtTotalShopeeFee = document.getElementById('txtTotalShopeeFee');
+  const txtShopeePayout = document.getElementById('txtShopeePayout');
+  const txtTaxValue = document.getElementById('txtTaxValue');
+  const txtTotalOtherCosts = document.getElementById('txtTotalOtherCosts');
+
+  const profitCard = document.getElementById('profitCard');
+  const txtProfitValue = document.getElementById('txtProfitValue');
+  const txtProfitMargin = document.getElementById('txtProfitMargin');
+
+  const batchQuantityEl = document.getElementById('batchQuantity');
+  const batchGrossEl = document.getElementById('batchGross');
+  const batchShopeeFeesEl = document.getElementById('batchShopeeFees');
+  const batchPayoutEl = document.getElementById('batchPayout');
+  const batchCostsEl = document.getElementById('batchCosts');
+  const batchProfitEl = document.getElementById('batchProfit');
+  const batchProfitBox = document.getElementById('batchProfitBox');
+
+  function formatBRL(val) {
+    return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  function setBatch(qty) {
+    batchQuantityEl.value = qty;
+    calculate();
+  }
+
+  function calculate() {
+    const salePrice = parseFloat(salePriceEl.value) || 0;
+    const costProduct = parseFloat(costProductEl.value) || 0;
+    const costPackaging = parseFloat(costPackagingEl.value) || 0;
+    const taxRate = parseFloat(taxRateEl.value) || 0;
+    const batchQty = parseInt(batchQuantityEl.value) || 1;
+
+    // 1. Porcentagem base e extras
+    let baseCommissionPercent = 14.0;
+    if (chkFreeShipping.checked) baseCommissionPercent += 6.0;
+    if (chkHighlight.checked) baseCommissionPercent += 3.5;
+    if (chkAdsEasy.checked) baseCommissionPercent += 1.5;
+
+    let percentFeeVal = salePrice * (baseCommissionPercent / 100);
+
+    // 2. Taxa fixa (Regras de 2026)
+    let fixedFee = 4.50;
+    let ruleText = "R$ 9 - R$ 79,99";
+
+    if (salePrice < 9.00) {
+      fixedFee = salePrice * 0.50; // 50% do valor se for menor que 9 reais
+      ruleText = "< R$ 9 (50%)";
+    } else if (salePrice >= 80.00 && salePrice <= 99.99) {
+      fixedFee = 16.00;
+      ruleText = "R$ 80 - R$ 99,99";
+    } else if (salePrice >= 100.00 && salePrice <= 199.99) {
+      fixedFee = 20.00;
+      ruleText = "R$ 100 - R$ 199,99";
+    } else if (salePrice >= 200.00) {
+      fixedFee = 26.00;
+      ruleText = "≥ R$ 200,00";
+    }
+
+    const totalShopeeFee = percentFeeVal + fixedFee;
+    const shopeePayout = Math.max(0, salePrice - totalShopeeFee);
+
+    // 3. Impostos e outros custos
+    const taxValue = salePrice * (taxRate / 100);
+    const totalOtherCosts = costProduct + costPackaging + taxValue;
+
+    // 4. Lucro por Unidade
+    const netProfitUnit = shopeePayout - costProduct - costPackaging - taxValue;
+    const profitMarginUnit = salePrice > 0 ? (netProfitUnit / salePrice) * 100 : 0;
+
+    // Renderizar resultados unitários
+    txtPercentFee.textContent = `${formatBRL(percentFeeVal)} (${baseCommissionPercent.toFixed(1)}%)`;
+    txtFixedFee.textContent = formatBRL(fixedFee);
+    txtFixedFeeRule.textContent = ruleText;
+    txtTotalShopeeFee.textContent = formatBRL(totalShopeeFee);
+    txtShopeePayout.textContent = formatBRL(shopeePayout);
+    txtTaxValue.textContent = formatBRL(taxValue);
+    txtTotalOtherCosts.textContent = formatBRL(totalOtherCosts);
+
+    txtProfitValue.textContent = formatBRL(netProfitUnit);
+    txtProfitMargin.textContent = `Margem: ${profitMarginUnit.toFixed(1)}%`;
+
+    if (netProfitUnit < 0) {
+      profitCard.classList.add('loss');
+    } else {
+      profitCard.classList.remove('loss');
+    }
+
+    // 5. Cálculos em Lote (Volume)
+    const totalGross = salePrice * batchQty;
+    const totalShopeeBatch = totalShopeeFee * batchQty;
+    const totalPayoutBatch = shopeePayout * batchQty;
+    const totalCostsBatch = totalOtherCosts * batchQty;
+    const totalProfitBatch = netProfitUnit * batchQty;
+
+    batchGrossEl.textContent = formatBRL(totalGross);
+    batchShopeeFeesEl.textContent = formatBRL(totalShopeeBatch);
+    batchPayoutEl.textContent = formatBRL(totalPayoutBatch);
+    batchCostsEl.textContent = formatBRL(totalCostsBatch);
+    batchProfitEl.textContent = formatBRL(totalProfitBatch);
+
+    if (totalProfitBatch < 0) {
+      batchProfitBox.classList.remove('highlight');
+      batchProfitBox.classList.add('highlight-loss');
+    } else {
+      batchProfitBox.classList.remove('highlight-loss');
+      batchProfitBox.classList.add('highlight');
+    }
+  }
+
+  // Event Listeners
+  const inputs = [salePriceEl, costProductEl, costPackagingEl, taxRateEl, batchQuantityEl];
+  inputs.forEach(input => input.addEventListener('input', calculate));
+
+  const checkboxes = [chkFreeShipping, chkHighlight, chkAdsEasy];
+  checkboxes.forEach(chk => chk.addEventListener('change', calculate));
+
+  // Inicializar na abertura da página
+  calculate();
+</script>
+</body>
+</html>
